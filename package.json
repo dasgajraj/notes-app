@@ -1,8 +1,11 @@
 {
+  "homepage": "https://username.github.io/reponame",
   "name": "dg_notes",
   "version": "1.0.0",
   "main": "expo/AppEntry.js",
   "scripts": {
+    "predeploy": "npm run build", 
+    "deploy": "gh-pages -d build",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
@@ -12,15 +15,16 @@
     "@react-navigation/native": "^7.0.0",
     "@react-navigation/stack": "^7.0.0",
     "expo": "~51.0.28",
+    "expo-secure-store": "~13.0.2",
     "expo-status-bar": "~1.12.1",
     "react": "18.2.0",
     "react-native": "0.74.5",
     "react-native-encrypted-storage": "^4.0.3",
-    "react-navigation": "^5.0.0",
-    "expo-secure-store": "~13.0.2"
+    "react-navigation": "^5.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "gh-pages": "^6.2.0"
   },
   "private": true
 }
