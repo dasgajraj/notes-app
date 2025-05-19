@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import AllNotes from "../Pages/AllNotes";
 import AddNotes from "../Pages/AddNotes";
 import LoadingScreen from "../Pages/Loading"; 
+import EditNotes from "../Pages/EditNotes";
 
 const Stack = createStackNavigator();
 
@@ -29,6 +30,7 @@ export default function Navigator() {
           />
         ) : (
           <>
+            
             <Stack.Screen
               name="AllNotes"
               component={AllNotes}
@@ -37,7 +39,12 @@ export default function Navigator() {
             <Stack.Screen
               name="AddNotes"
               component={AddNotes}
-              options={{ headerShown: true }}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="EditNotes"
+              component={EditNotes}
+              options={{ headerShown: false }}
             />
           </>
         )}

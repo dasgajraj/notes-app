@@ -1,3 +1,4 @@
+import React, { useState, useCallback } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -6,7 +7,6 @@ import {
   View,
   Alert,
 } from "react-native";
-import React, { useState, useCallback } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
 
@@ -19,10 +19,15 @@ const AllNotes = () => {
       const storedNotes = await SecureStore.getItemAsync("notes");
       if (storedNotes) {
         const data = JSON.parse(storedNotes);
-        setNotes(data);
-        console.log("Fetched notes:", data);  // Log fetched notes
+        // Add unique ID to existing notes if missing
+        const notesWithIds = data.map(note => ({
+          ...note,
+          id: note.id || Date.now().toString() + Math.random()
+        }));
+        setNotes(notesWithIds);
+        console.log("Fetched notes:", notesWithIds);
       } else {
-        setNotes([]);  // Clear notes if none are stored
+        setNotes([]);
         console.log("No notes found.");
       }
     } catch (error) {
@@ -43,8 +48,8 @@ const AllNotes = () => {
           text: "Yes",
           onPress: async () => {
             try {
-              await SecureStore.setItemAsync("notes", JSON.stringify([])); // Clear notes in SecureStore
-              setNotes([]); // Update state
+              await SecureStore.setItemAsync("notes", JSON.stringify([]));
+              setNotes([]);
               console.log("All notes deleted.");
             } catch (error) {
               console.error("Failed to delete all notes", error);
@@ -65,12 +70,15 @@ const AllNotes = () => {
     <View style={styles.container}>
       <FlatList
         data={notes}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.id || Date.now().toString()}
         renderItem={({ item }) => (
-          <View style={styles.noteContainer}>
+          <TouchableOpacity 
+            style={styles.noteContainer}
+            onPress={() => navigation.navigate("EditNotes", { note: item })}
+          >
             <Text style={styles.noteTitle}>{item.title}</Text>
             <Text style={styles.noteDesc}>{item.desc}</Text>
-          </View>
+          </TouchableOpacity>
         )}
         ListEmptyComponent={<Text style={styles.noNotesText}>No notes available.</Text>}
       />
@@ -83,54 +91,57 @@ const AllNotes = () => {
         <Text style={styles.buttontxt}>+</Text>
       </TouchableOpacity>
 
-      {/* Delete All Button */}
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={deleteAllNotes}
-      >
-        <Text style={styles.deleteButtonText}>Delete All</Text>
-      </TouchableOpacity>
+      {notes.length > 0 && (
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={deleteAllNotes}
+        >
+          <Text style={styles.deleteButtonText}>Delete All</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
 
-export default AllNotes;const styles = StyleSheet.create({
+// AllNotes StyleSheet
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#f8f9fa",
     paddingHorizontal: 16,
-    paddingVertical: 24,
   },
   noteContainer: {
     backgroundColor: "#fff",
     borderRadius: 12,
-    padding: 16,
-    marginVertical: 12,
+    padding: 18,
+    marginVertical: 10,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-    elevation: 4,
-    minHeight: 100,
+    shadowOpacity: 0.15,
+    shadowRadius: 3.5,
+    elevation: 3,
+    minHeight: 110,
   },
   noteTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 8,
+    fontWeight: "700",
+    marginBottom: 10,
+    color: "#2c3e50",
   },
   noteDesc: {
     fontSize: 16,
-    color: "#444",
+    color: "#5d6d7e",
     flexShrink: 1,
+    lineHeight: 22,
   },
   button: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#000",
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#2980b9",
     position: "absolute",
     right: 24,
     bottom: 24,
@@ -139,43 +150,47 @@ export default AllNotes;const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 3,
     },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-    elevation: 4,
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   buttontxt: {
     color: "#fff",
-    fontSize: 24,
-    fontWeight: "bold",
+    fontSize: 30,
+    fontWeight: "500",
+    marginBottom: 2, // Visual adjustment for the + icon
   },
   deleteButton: {
-    backgroundColor: "#d32f2f",
+    backgroundColor: "#e74c3c",
     borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     position: "absolute",
-    top: 72, // Moved the delete button down
     right: 16,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 1,
     },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-    elevation: 4,
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
   },
   deleteButtonText: {
     color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
+    fontSize: 15,
+    fontWeight: "600",
   },
   noNotesText: {
-    fontSize: 16,
-    color: "#666",
-    marginTop: 24,
+    fontSize: 17,
+    color: "#7f8c8d",
+    marginTop: 40,
     textAlign: "center",
+    fontWeight: "500",
   },
 });
+
+
+export default AllNotes;
